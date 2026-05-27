@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マーケ用語クイズ - Marketing Term Trainer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <h1>📈 マーケ用語クイズ</h1>
+      <p class="tagline">マーケティング用語を、楽しく覚える。</p>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" data-mode="list">📚 一覧</button>
+      <button class="tab" data-mode="flashcard">🃏 フラッシュカード</button>
+      <button class="tab" data-mode="quiz">📝 4択クイズ</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- ========== 一覧モード ========== -->
+    <section id="view-list" class="view active">
+      <div class="toolbar">
+        <input type="search" id="search-input" placeholder="🔍 用語名・説明で検索...">
+        <select id="category-filter"></select>
+        <span class="count-badge"><span id="list-count">0</span>件</span>
+      </div>
+      <div id="term-grid" class="term-grid"></div>
+    </section>
+
+    <!-- ========== フラッシュカードモード ========== -->
+    <section id="view-flashcard" class="view">
+      <div class="toolbar">
+        <select id="flashcard-category"></select>
+        <button id="flashcard-shuffle" class="btn-secondary">🔀 シャッフル</button>
+        <span class="progress-text">
+          <span id="flashcard-pos">1</span> / <span id="flashcard-total">0</span>
+        </span>
+      </div>
+
+      <div class="flashcard-area">
+        <div id="flashcard" class="flashcard">
+          <div class="card-inner">
+            <div class="card-face card-front">
+              <div class="card-category" id="fc-category"></div>
+              <div class="card-term" id="fc-term"></div>
+              <div class="card-full" id="fc-full"></div>
+              <div class="card-hint">タップして意味を見る</div>
+            </div>
+            <div class="card-face card-back">
+              <div class="card-category" id="fc-category-back"></div>
+              <div class="card-term-small" id="fc-term-back"></div>
+              <div class="card-description" id="fc-description"></div>
+              <div class="card-hint">タップして問題に戻る</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flashcard-controls">
+          <button id="fc-prev" class="btn-nav">◀ 前</button>
+          <button id="fc-next" class="btn-nav">次 ▶</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 4択クイズモード ========== -->
+    <section id="view-quiz" class="view">
+      <div id="quiz-setup" class="quiz-setup">
+        <h2>クイズ設定</h2>
+        <div class="setup-row">
+          <label>カテゴリ</label>
+          <select id="quiz-category"></select>
+        </div>
+        <div class="setup-row">
+          <label>出題数</label>
+          <select id="quiz-count">
+            <option value="5">5問</option>
+            <option value="10" selected>10問</option>
+            <option value="20">20問</option>
+            <option value="0">全問</option>
+          </select>
+        </div>
+        <div class="setup-row">
+          <label>出題形式</label>
+          <select id="quiz-direction">
+            <option value="term-to-desc">用語 → 意味を選ぶ</option>
+            <option value="desc-to-term">意味 → 用語を選ぶ</option>
+            <option value="mixed">ミックス</option>
+          </select>
+        </div>
+        <button id="quiz-start" class="btn-primary">クイズを始める</button>
+      </div>
+
+      <div id="quiz-play" class="quiz-play hidden">
+        <div class="quiz-header">
+          <div class="quiz-progress-bar">
+            <div id="quiz-progress-fill" class="quiz-progress-fill"></div>
+          </div>
+          <div class="quiz-meta">
+            <span>第 <strong id="quiz-current">1</strong> 問 / <span id="quiz-total">10</span></span>
+            <span>✅ <strong id="quiz-correct">0</strong> ❌ <strong id="quiz-wrong">0</strong></span>
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <div class="quiz-category-tag" id="quiz-cat-tag"></div>
+          <p class="quiz-prompt" id="quiz-prompt"></p>
+          <div class="quiz-question-text" id="quiz-question-text"></div>
+        </div>
+
+        <div id="quiz-choices" class="quiz-choices"></div>
+
+        <div id="quiz-feedback" class="quiz-feedback hidden">
+          <div class="feedback-result" id="feedback-result"></div>
+          <div class="feedback-explanation" id="feedback-explanation"></div>
+          <button id="quiz-next" class="btn-primary">次の問題 ▶</button>
+        </div>
+      </div>
+
+      <div id="quiz-result" class="quiz-result hidden">
+        <h2>🎉 結果発表</h2>
+        <div class="score-circle">
+          <div class="score-percent" id="result-percent">0</div>
+          <div class="score-label">%</div>
+        </div>
+        <div class="score-detail">
+          <span id="result-correct">0</span> / <span id="result-total">0</span> 問正解
+        </div>
+        <div id="result-comment" class="result-comment"></div>
+
+        <div id="wrong-answers" class="wrong-answers"></div>
+
+        <div class="result-actions">
+          <button id="quiz-retry" class="btn-primary">もう一度</button>
+          <button id="quiz-back-setup" class="btn-secondary">設定に戻る</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Made for marketing learners · データは <code>data.js</code> を編集して追加できます</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

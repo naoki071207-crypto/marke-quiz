@@ -1,0 +1,12 @@
+# ビルド成果物
+*.zip
+
+# OS / エディタ
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ローカル設定 / 一時ファイル
+*.log
+*.tmp

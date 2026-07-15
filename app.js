@@ -70,7 +70,7 @@ function renderList() {
   $('#list-count').textContent = items.length;
   const grid = $('#term-grid');
   if (items.length === 0) {
-    grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:40px;">該当する用語が見つかりませんでした。</p>`;
+    grid.innerHTML = `<p class="empty-state">該当する用語が見つかりませんでした。</p>`;
     return;
   }
   grid.innerHTML = items
@@ -79,14 +79,23 @@ function renderList() {
     <div class="term-card">
       <div class="term-card-header">
         <div class="term-card-title">${escapeHtml(t.term)}</div>
-        <span class="category-tag">${escapeHtml(t.category)}</span>
+        <span class="category-tag" data-cat="${escapeHtml(t.category)}">${escapeHtml(t.category)}</span>
       </div>
       <div class="term-card-full">${escapeHtml(t.full)}</div>
       <div class="term-card-desc">${escapeHtml(t.description)}</div>
+      <span class="term-card-more">続きを読む</span>
     </div>`
     )
     .join('');
 }
+
+// カードをクリックすると全文を展開する
+$('#term-grid').addEventListener('click', (e) => {
+  const card = e.target.closest('.term-card');
+  if (!card) return;
+  const expanded = card.classList.toggle('expanded');
+  card.querySelector('.term-card-more').textContent = expanded ? '閉じる' : '続きを読む';
+});
 
 function escapeHtml(s) {
   return String(s)
@@ -126,6 +135,8 @@ function renderFlashcard() {
   const t = list[index];
   $('#fc-category').textContent = t.category;
   $('#fc-category-back').textContent = t.category;
+  $('#fc-category').dataset.cat = t.category;
+  $('#fc-category-back').dataset.cat = t.category;
   $('#fc-term').textContent = t.term;
   $('#fc-term-back').textContent = t.term;
   $('#fc-full').textContent = t.full;
@@ -250,6 +261,7 @@ function renderQuestion() {
   $('#quiz-progress-fill').style.width = `${progress}%`;
 
   $('#quiz-cat-tag').textContent = q.term.category;
+  $('#quiz-cat-tag').dataset.cat = q.term.category;
   $('#quiz-prompt').textContent = q.prompt;
   $('#quiz-question-text').textContent = q.questionText;
 
@@ -282,12 +294,12 @@ function handleAnswer(btn, q) {
 
   if (isCorrect) {
     state.quiz.correctCount++;
-    $('#feedback-result').textContent = '⭕ 正解!';
+    $('#feedback-result').textContent = '正解';
     $('#feedback-result').className = 'feedback-result correct';
   } else {
     state.quiz.wrongCount++;
     state.quiz.wrongList.push(q);
-    $('#feedback-result').textContent = '❌ 不正解';
+    $('#feedback-result').textContent = '不正解';
     $('#feedback-result').className = 'feedback-result wrong';
   }
 
@@ -298,7 +310,7 @@ function handleAnswer(btn, q) {
 
   // Final question -> button label changes
   const isLast = state.quiz.currentIndex === state.quiz.questions.length - 1;
-  $('#quiz-next').textContent = isLast ? '結果を見る 🎉' : '次の問題 ▶';
+  $('#quiz-next').textContent = isLast ? '結果を見る' : '次の問題';
 }
 
 function nextQuestion() {
@@ -322,12 +334,20 @@ function showResult() {
   $('#result-correct').textContent = correct;
   $('#result-total').textContent = total;
 
+  // スコアリング (r=54 → 円周 2πr ≒ 339.29) を 0 から描き起こす
+  const CIRCUMFERENCE = 339.29;
+  const ring = $('#score-ring');
+  ring.style.strokeDashoffset = CIRCUMFERENCE;
+  requestAnimationFrame(() => {
+    ring.style.strokeDashoffset = CIRCUMFERENCE * (1 - pct / 100);
+  });
+
   let comment = '';
-  if (pct === 100) comment = '🏆 完璧! マーケ用語マスターです!';
-  else if (pct >= 80) comment = '🌟 素晴らしい! しっかり身についています。';
-  else if (pct >= 60) comment = '👍 まずまずです。あと一歩!';
-  else if (pct >= 40) comment = '📖 もう一度フラッシュカードで復習しましょう。';
-  else comment = '💪 これからです! 一覧モードで基礎から確認してみましょう。';
+  if (pct === 100) comment = '完璧です。全問正解。';
+  else if (pct >= 80) comment = '十分に身についています。';
+  else if (pct >= 60) comment = 'まずまず。あと一歩です。';
+  else if (pct >= 40) comment = 'カードモードで復習してみましょう。';
+  else comment = '一覧モードで基礎から確認してみましょう。';
   $('#result-comment').textContent = comment;
 
   // 間違えた問題のリスト
@@ -336,12 +356,13 @@ function showResult() {
     wrongEl.innerHTML = '';
   } else {
     wrongEl.innerHTML = `
-      <div class="wrong-answers-title">間違えた用語（${state.quiz.wrongList.length}件）</div>
+      <div class="wrong-answers-title">間違えた用語 · ${state.quiz.wrongList.length}件</div>
       ${state.quiz.wrongList
         .map(
           (q) => `
         <div class="wrong-item">
-          <strong>${escapeHtml(q.term.term)}</strong>（${escapeHtml(q.term.full)}）<br>
+          <strong>${escapeHtml(q.term.term)}</strong>
+          <span class="wrong-full">${escapeHtml(q.term.full)}</span>
           ${escapeHtml(q.term.description)}
         </div>`
         )

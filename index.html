@@ -3,29 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>マーケ用語クイズ - Marketing Term Trainer</title>
+  <meta name="theme-color" content="#ffffff">
+  <title>マーケ用語 — Marketing Term Trainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="app-header">
-    <div class="header-inner">
-      <h1>📈 マーケ用語クイズ</h1>
-      <p class="tagline">マーケティング用語を、楽しく覚える。</p>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark">M</span>
+        <span class="brand-text">
+          <span class="brand-title">マーケ用語</span>
+          <span class="brand-sub">333 terms · 7 categories</span>
+        </span>
+      </div>
+
+      <nav class="segmented" role="tablist" aria-label="学習モード">
+        <button class="tab active" data-mode="list" role="tab">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+          <span>一覧</span>
+        </button>
+        <button class="tab" data-mode="flashcard" role="tab">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+          <span>カード</span>
+        </button>
+        <button class="tab" data-mode="quiz" role="tab">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 9a3 3 0 1 1 4 2.8c-.6.3-1 .9-1 1.6v.6"/><circle cx="12" cy="17.5" r=".7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="9"/></svg>
+          <span>クイズ</span>
+        </button>
+      </nav>
     </div>
-    <nav class="tabs">
-      <button class="tab active" data-mode="list">📚 一覧</button>
-      <button class="tab" data-mode="flashcard">🃏 フラッシュカード</button>
-      <button class="tab" data-mode="quiz">📝 4択クイズ</button>
-    </nav>
   </header>
 
   <main class="container">
     <!-- ========== 一覧モード ========== -->
     <section id="view-list" class="view active">
       <div class="toolbar">
-        <input type="search" id="search-input" placeholder="🔍 用語名・説明で検索...">
-        <select id="category-filter"></select>
-        <span class="count-badge"><span id="list-count">0</span>件</span>
+        <div class="search-field">
+          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input type="search" id="search-input" placeholder="用語名・説明で検索">
+        </div>
+        <div class="select-field">
+          <select id="category-filter" aria-label="カテゴリ"></select>
+          <svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <span class="count-badge"><span id="list-count">0</span> 件</span>
       </div>
       <div id="term-grid" class="term-grid"></div>
     </section>
@@ -33,63 +58,88 @@
     <!-- ========== フラッシュカードモード ========== -->
     <section id="view-flashcard" class="view">
       <div class="toolbar">
-        <select id="flashcard-category"></select>
-        <button id="flashcard-shuffle" class="btn-secondary">🔀 シャッフル</button>
+        <div class="select-field">
+          <select id="flashcard-category" aria-label="カテゴリ"></select>
+          <svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <button id="flashcard-shuffle" class="btn-ghost">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+          シャッフル
+        </button>
         <span class="progress-text">
-          <span id="flashcard-pos">1</span> / <span id="flashcard-total">0</span>
+          <span id="flashcard-pos">1</span><span class="progress-sep">/</span><span id="flashcard-total">0</span>
         </span>
       </div>
 
       <div class="flashcard-area">
-        <div id="flashcard" class="flashcard">
+        <div id="flashcard" class="flashcard" tabindex="0">
           <div class="card-inner">
             <div class="card-face card-front">
               <div class="card-category" id="fc-category"></div>
               <div class="card-term" id="fc-term"></div>
               <div class="card-full" id="fc-full"></div>
-              <div class="card-hint">タップして意味を見る</div>
+              <div class="card-hint">クリック / Space で意味を見る</div>
             </div>
             <div class="card-face card-back">
               <div class="card-category" id="fc-category-back"></div>
               <div class="card-term-small" id="fc-term-back"></div>
               <div class="card-description" id="fc-description"></div>
-              <div class="card-hint">タップして問題に戻る</div>
+              <div class="card-hint">クリックで戻る</div>
             </div>
           </div>
         </div>
 
         <div class="flashcard-controls">
-          <button id="fc-prev" class="btn-nav">◀ 前</button>
-          <button id="fc-next" class="btn-nav">次 ▶</button>
+          <button id="fc-prev" class="btn-nav" aria-label="前のカード">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+            前
+          </button>
+          <button id="fc-next" class="btn-nav" aria-label="次のカード">
+            次
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
         </div>
+        <p class="keyhint"><kbd>←</kbd><kbd>→</kbd> で移動 · <kbd>Space</kbd> でめくる</p>
       </div>
     </section>
 
     <!-- ========== 4択クイズモード ========== -->
     <section id="view-quiz" class="view">
-      <div id="quiz-setup" class="quiz-setup">
-        <h2>クイズ設定</h2>
+      <div id="quiz-setup" class="panel quiz-setup">
+        <h2 class="panel-title">クイズ設定</h2>
+        <p class="panel-sub">出題範囲と形式を選んでください。</p>
+
         <div class="setup-row">
-          <label>カテゴリ</label>
-          <select id="quiz-category"></select>
+          <label for="quiz-category">カテゴリ</label>
+          <div class="select-field">
+            <select id="quiz-category"></select>
+            <svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
         </div>
         <div class="setup-row">
-          <label>出題数</label>
-          <select id="quiz-count">
-            <option value="5">5問</option>
-            <option value="10" selected>10問</option>
-            <option value="20">20問</option>
-            <option value="0">全問</option>
-          </select>
+          <label for="quiz-count">出題数</label>
+          <div class="select-field">
+            <select id="quiz-count">
+              <option value="5">5問</option>
+              <option value="10" selected>10問</option>
+              <option value="20">20問</option>
+              <option value="0">全問</option>
+            </select>
+            <svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
         </div>
         <div class="setup-row">
-          <label>出題形式</label>
-          <select id="quiz-direction">
-            <option value="term-to-desc">用語 → 意味を選ぶ</option>
-            <option value="desc-to-term">意味 → 用語を選ぶ</option>
-            <option value="mixed">ミックス</option>
-          </select>
+          <label for="quiz-direction">出題形式</label>
+          <div class="select-field">
+            <select id="quiz-direction">
+              <option value="term-to-desc">用語 → 意味を選ぶ</option>
+              <option value="desc-to-term">意味 → 用語を選ぶ</option>
+              <option value="mixed">ミックス</option>
+            </select>
+            <svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
         </div>
+
         <button id="quiz-start" class="btn-primary">クイズを始める</button>
       </div>
 
@@ -99,12 +149,15 @@
             <div id="quiz-progress-fill" class="quiz-progress-fill"></div>
           </div>
           <div class="quiz-meta">
-            <span>第 <strong id="quiz-current">1</strong> 問 / <span id="quiz-total">10</span></span>
-            <span>✅ <strong id="quiz-correct">0</strong> ❌ <strong id="quiz-wrong">0</strong></span>
+            <span class="meta-left">Q<strong id="quiz-current">1</strong><span class="progress-sep">/</span><span id="quiz-total">10</span></span>
+            <span class="meta-right">
+              <span class="tally tally-correct"><span class="dot"></span><strong id="quiz-correct">0</strong></span>
+              <span class="tally tally-wrong"><span class="dot"></span><strong id="quiz-wrong">0</strong></span>
+            </span>
           </div>
         </div>
 
-        <div class="quiz-question">
+        <div class="panel quiz-question">
           <div class="quiz-category-tag" id="quiz-cat-tag"></div>
           <p class="quiz-prompt" id="quiz-prompt"></p>
           <div class="quiz-question-text" id="quiz-question-text"></div>
@@ -112,21 +165,28 @@
 
         <div id="quiz-choices" class="quiz-choices"></div>
 
-        <div id="quiz-feedback" class="quiz-feedback hidden">
+        <div id="quiz-feedback" class="panel quiz-feedback hidden">
           <div class="feedback-result" id="feedback-result"></div>
           <div class="feedback-explanation" id="feedback-explanation"></div>
-          <button id="quiz-next" class="btn-primary">次の問題 ▶</button>
+          <button id="quiz-next" class="btn-primary">次の問題</button>
         </div>
       </div>
 
-      <div id="quiz-result" class="quiz-result hidden">
-        <h2>🎉 結果発表</h2>
-        <div class="score-circle">
-          <div class="score-percent" id="result-percent">0</div>
-          <div class="score-label">%</div>
+      <div id="quiz-result" class="panel quiz-result hidden">
+        <h2 class="panel-title">結果</h2>
+
+        <div class="score-ring">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="ring-track" cx="60" cy="60" r="54"></circle>
+            <circle class="ring-value" id="score-ring" cx="60" cy="60" r="54"></circle>
+          </svg>
+          <div class="score-center">
+            <span class="score-percent" id="result-percent">0</span><span class="score-unit">%</span>
+          </div>
         </div>
+
         <div class="score-detail">
-          <span id="result-correct">0</span> / <span id="result-total">0</span> 問正解
+          <strong id="result-correct">0</strong><span class="progress-sep">/</span><span id="result-total">0</span> 問正解
         </div>
         <div id="result-comment" class="result-comment"></div>
 
@@ -134,14 +194,14 @@
 
         <div class="result-actions">
           <button id="quiz-retry" class="btn-primary">もう一度</button>
-          <button id="quiz-back-setup" class="btn-secondary">設定に戻る</button>
+          <button id="quiz-back-setup" class="btn-ghost">設定に戻る</button>
         </div>
       </div>
     </section>
   </main>
 
   <footer class="app-footer">
-    <p>Made for marketing learners · データは <code>data.js</code> を編集して追加できます</p>
+    <p>Marketing Term Trainer · 333 terms</p>
   </footer>
 
   <script src="data.js"></script>

@@ -60,6 +60,10 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
           <span>基準一覧</span>
         </button>
+        <button class="tl-tab" data-tlmode="cond" role="tab">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+          <span>条件早見表</span>
+        </button>
         <button class="tl-tab" data-tlmode="quiz" role="tab">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l2.5 2.5L16 8"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>
           <span>OK / NG判定</span>
@@ -257,6 +261,28 @@
       <div id="tl-rule-list" class="tl-rule-list"></div>
     </section>
 
+    <!-- ========== 条件早見表モード ========== -->
+    <section id="view-tl-cond" class="tl-view">
+      <div class="tl-intro">
+        <h2 class="tl-intro-title">条件で変わる基準（早見表）</h2>
+        <p class="tl-intro-lead">素材種別と遷移先を選ぶと、条件によって変わる基準の該当内容が切り替わります。同じ表現でも「記事かバナーか」「記事に遷移するか直接LPに遷移するか」で、必要な注釈や可否が変わります。</p>
+      </div>
+
+      <div class="cond-selectors panel">
+        <div class="cond-field">
+          <span class="cond-field-label">素材種別</span>
+          <div class="seg-choice" id="cond-material"></div>
+        </div>
+        <div class="cond-field" id="cond-dest-field">
+          <span class="cond-field-label">遷移先</span>
+          <div class="seg-choice" id="cond-destination"></div>
+          <span class="cond-dest-note" id="cond-dest-note"></span>
+        </div>
+      </div>
+
+      <div id="cond-list" class="cond-list"></div>
+    </section>
+
     <!-- ========== OK/NG判定クイズモード ========== -->
     <section id="view-tl-quiz" class="tl-view">
       <div id="tl-quiz-setup" class="panel quiz-setup">
@@ -379,5 +405,6 @@
   <script src="townlife-data.js"></script>
   <script src="townlife-ng.js"></script>
   <script src="townlife.js"></script>
+  <script src="townlife-cond.js"></script>
 </body>
 </html>

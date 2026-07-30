@@ -230,7 +230,8 @@ function tlQuizItems(cat) {
       const nums = c.rules.filter((r) => typeof r === 'number');
       const rule = nums.length ? RULE_BY_NO[nums[0]] : null;
       return {
-        text: c.phrase,
+        text: c.quizText || c.phrase,
+        ngPhrase: c.phrase,
         ok: false,
         why: c.reason,
         ruleNos: nums,
@@ -323,10 +324,11 @@ function handleTLAnswer(answer) {
   const head = q.ruleNos.length
     ? `【基準${q.ruleNos.join('・')}項: ${q.ruleTitle}】`
     : (q.ruleTitle ? `【${q.ruleTitle}】` : '');
+  const ng = q.ngPhrase && q.ngPhrase !== q.text ? `\n該当のNG要素:「${q.ngPhrase}」` : '';
   const why = q.why ? `\n${q.why}` : '';
   const summary = rule ? `\n\n${rule.summary}` : '';
   const src = q.source && q.source !== '基準例' ? `\n\n（出典: 実際のNG事例 / ${q.source}）` : '';
-  $('#tl-feedback-explanation').textContent = `${verdict}です。\n\n${head}${why}${summary}${src}`;
+  $('#tl-feedback-explanation').textContent = `${verdict}です。\n\n${head}${ng}${why}${summary}${src}`;
 
   $('#tl-quiz-correct').textContent = tlState.quiz.correct;
   $('#tl-quiz-wrong').textContent = tlState.quiz.wrong;

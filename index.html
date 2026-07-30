@@ -13,15 +13,34 @@
 <body>
   <header class="topbar">
     <div class="topbar-inner">
-      <div class="brand">
-        <span class="brand-mark">M</span>
-        <span class="brand-text">
-          <span class="brand-title">マーケ用語</span>
-          <span class="brand-sub">333 terms · 7 categories</span>
-        </span>
+      <div class="brand-switch">
+        <button class="brand" id="brand-toggle" aria-haspopup="true" aria-expanded="false">
+          <span class="brand-mark" id="brand-mark">M</span>
+          <span class="brand-text">
+            <span class="brand-title" id="brand-title">マーケ用語</span>
+            <span class="brand-sub" id="brand-sub">333 terms · 7 categories</span>
+          </span>
+          <svg class="brand-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="brand-menu" id="brand-menu" role="menu">
+          <button class="brand-item active" data-app="marke" role="menuitem">
+            <span class="brand-item-mark">M</span>
+            <span class="brand-item-text">
+              <span class="brand-item-title">マーケ用語</span>
+              <span class="brand-item-sub">マーケティング用語 333語</span>
+            </span>
+          </button>
+          <button class="brand-item" data-app="townlife" role="menuitem">
+            <span class="brand-item-mark tl">T</span>
+            <span class="brand-item-text">
+              <span class="brand-item-title">タウンライフ個別基準</span>
+              <span class="brand-item-sub">広告出稿 個別基準 全26項目</span>
+            </span>
+          </button>
+        </div>
       </div>
 
-      <nav class="segmented" role="tablist" aria-label="学習モード">
+      <nav class="segmented" id="tabs-marke" role="tablist" aria-label="学習モード">
         <button class="tab active" data-mode="list" role="tab">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
           <span>一覧</span>
@@ -35,10 +54,22 @@
           <span>クイズ</span>
         </button>
       </nav>
+
+      <nav class="segmented" id="tabs-townlife" role="tablist" aria-label="基準モード">
+        <button class="tl-tab active" data-tlmode="list" role="tab">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+          <span>基準一覧</span>
+        </button>
+        <button class="tl-tab" data-tlmode="quiz" role="tab">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l2.5 2.5L16 8"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>
+          <span>OK / NG判定</span>
+        </button>
+      </nav>
     </div>
   </header>
 
   <main class="container">
+   <div id="app-marke" class="app-pane">
     <!-- ========== 一覧モード ========== -->
     <section id="view-list" class="view active">
       <div class="toolbar">
@@ -198,6 +229,121 @@
         </div>
       </div>
     </section>
+   </div><!-- /#app-marke -->
+
+   <div id="app-townlife" class="app-pane">
+    <!-- ========== 基準一覧モード ========== -->
+    <section id="view-tl-list" class="tl-view active">
+      <div class="tl-intro">
+        <h2 class="tl-intro-title">タウンライフ家づくり 広告出稿における個別基準</h2>
+        <p class="tl-intro-lead" id="tl-principle"></p>
+        <p class="tl-intro-meta">全26項目 · 2026年3月30日 改訂版 · <span class="tl-caution">取扱い注意</span></p>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-field">
+          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input type="search" id="tl-search" placeholder="基準・OK/NG例で検索">
+        </div>
+        <div class="select-field">
+          <select id="tl-category-filter" aria-label="カテゴリ"></select>
+          <svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <span class="count-badge"><span id="tl-count">0</span> 項目</span>
+      </div>
+
+      <div id="tl-rule-list" class="tl-rule-list"></div>
+    </section>
+
+    <!-- ========== OK/NG判定クイズモード ========== -->
+    <section id="view-tl-quiz" class="tl-view">
+      <div id="tl-quiz-setup" class="panel quiz-setup">
+        <h2 class="panel-title">OK / NG判定クイズ</h2>
+        <p class="panel-sub">広告表現を見て、個別基準に照らして OK か NG かを判定します。</p>
+
+        <div class="setup-row">
+          <label for="tl-quiz-category">カテゴリ</label>
+          <div class="select-field">
+            <select id="tl-quiz-category"></select>
+            <svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="setup-row">
+          <label for="tl-quiz-count">出題数</label>
+          <div class="select-field">
+            <select id="tl-quiz-count">
+              <option value="10" selected>10問</option>
+              <option value="20">20問</option>
+              <option value="0">全問</option>
+            </select>
+            <svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+
+        <button id="tl-quiz-start" class="btn-primary">クイズを始める</button>
+      </div>
+
+      <div id="tl-quiz-play" class="quiz-play hidden">
+        <div class="quiz-header">
+          <div class="quiz-progress-bar">
+            <div id="tl-quiz-progress-fill" class="quiz-progress-fill"></div>
+          </div>
+          <div class="quiz-meta">
+            <span class="meta-left">Q<strong id="tl-quiz-current">1</strong><span class="progress-sep">/</span><span id="tl-quiz-total">10</span></span>
+            <span class="meta-right">
+              <span class="tally tally-correct"><span class="dot"></span><strong id="tl-quiz-correct">0</strong></span>
+              <span class="tally tally-wrong"><span class="dot"></span><strong id="tl-quiz-wrong">0</strong></span>
+            </span>
+          </div>
+        </div>
+
+        <div class="panel quiz-question">
+          <div class="quiz-category-tag" id="tl-quiz-cat-tag"></div>
+          <p class="quiz-prompt">この広告表現は、個別基準に照らして OK ですか？ NG ですか？</p>
+          <div class="quiz-question-text tl-quote" id="tl-quiz-question-text"></div>
+        </div>
+
+        <div class="tl-judge">
+          <button class="judge-btn judge-ok" data-answer="ok">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg>
+            OK（出稿できる）
+          </button>
+          <button class="judge-btn judge-ng" data-answer="ng">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            NG（出稿できない）
+          </button>
+        </div>
+
+        <div id="tl-quiz-feedback" class="panel quiz-feedback hidden">
+          <div class="feedback-result" id="tl-feedback-result"></div>
+          <div class="feedback-explanation" id="tl-feedback-explanation"></div>
+          <button id="tl-quiz-next" class="btn-primary">次の問題</button>
+        </div>
+      </div>
+
+      <div id="tl-quiz-result" class="panel quiz-result hidden">
+        <h2 class="panel-title">結果</h2>
+        <div class="score-ring">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="ring-track" cx="60" cy="60" r="54"></circle>
+            <circle class="ring-value" id="tl-score-ring" cx="60" cy="60" r="54"></circle>
+          </svg>
+          <div class="score-center">
+            <span class="score-percent" id="tl-result-percent">0</span><span class="score-unit">%</span>
+          </div>
+        </div>
+        <div class="score-detail">
+          <strong id="tl-result-correct">0</strong><span class="progress-sep">/</span><span id="tl-result-total">0</span> 問正解
+        </div>
+        <div id="tl-result-comment" class="result-comment"></div>
+        <div id="tl-wrong-answers" class="wrong-answers"></div>
+        <div class="result-actions">
+          <button id="tl-quiz-retry" class="btn-primary">もう一度</button>
+          <button id="tl-quiz-back-setup" class="btn-ghost">設定に戻る</button>
+        </div>
+      </div>
+    </section>
+   </div><!-- /#app-townlife -->
   </main>
 
   <footer class="app-footer">
@@ -206,5 +352,7 @@
 
   <script src="data.js"></script>
   <script src="app.js"></script>
+  <script src="townlife-data.js"></script>
+  <script src="townlife.js"></script>
 </body>
 </html>

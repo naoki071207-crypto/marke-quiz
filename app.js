@@ -78,11 +78,11 @@ function renderList() {
       (t) => `
     <div class="term-card">
       <div class="term-card-header">
-        <div class="term-card-title">${escapeHtml(t.term)}</div>
+        <div class="term-card-title">${highlight(t.term, query)}</div>
         <span class="category-tag" data-cat="${escapeHtml(t.category)}">${escapeHtml(t.category)}</span>
       </div>
-      <div class="term-card-full">${escapeHtml(t.full)}</div>
-      <div class="term-card-desc">${escapeHtml(t.description)}</div>
+      <div class="term-card-full">${highlight(t.full, query)}</div>
+      <div class="term-card-desc">${highlight(t.description, query)}</div>
       <span class="term-card-more">続きを読む</span>
     </div>`
     )
@@ -104,6 +104,15 @@ function escapeHtml(s) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+// 検索語にマッチした部分を <mark> で囲む。先にHTMLエスケープしてから
+// エスケープ済みの検索語で大文字小文字を無視してマッチさせる（XSS安全）。
+function highlight(text, query) {
+  const esc = escapeHtml(text);
+  if (!query) return esc;
+  const q = escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return esc.replace(new RegExp(`(${q})`, 'gi'), '<mark class="hl">$1</mark>');
 }
 
 $('#search-input').addEventListener('input', renderList);

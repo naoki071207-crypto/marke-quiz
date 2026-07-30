@@ -67,14 +67,14 @@ function ruleSearchText(r) {
   return `${r.no} ${r.title} ${r.summary} ${r.detail || ''} ${ex}`.toLowerCase();
 }
 
-function renderExamples(r) {
+function renderExamples(r, query) {
   if (!r.examples.length) return '';
   const row = (e) => `
     <li class="tl-ex ${e.ok ? 'ok' : 'ng'}">
       <span class="tl-ex-badge">${e.ok ? 'OK' : 'NG'}</span>
       <span class="tl-ex-body">
-        <span class="tl-ex-text">${escapeHtml(e.text)}</span>
-        <span class="tl-ex-why">${escapeHtml(e.why)}</span>
+        <span class="tl-ex-text">${highlight(e.text, query)}</span>
+        <span class="tl-ex-why">${highlight(e.why, query)}</span>
       </span>
     </li>`;
   return `<ul class="tl-ex-list">${r.examples.map(row).join('')}</ul>`;
@@ -95,18 +95,18 @@ function renderTLList() {
   list.innerHTML = items
     .map((r) => {
       const detail = r.detail
-        ? `<div class="tl-rule-detail">${escapeHtml(r.detail)}</div>`
+        ? `<div class="tl-rule-detail">${highlight(r.detail, query)}</div>`
         : '';
       return `
       <article class="tl-rule">
         <div class="tl-rule-head">
           <span class="tl-rule-no">${String(r.no).padStart(2, '0')}</span>
-          <h3 class="tl-rule-title">${escapeHtml(r.title)}</h3>
+          <h3 class="tl-rule-title">${highlight(r.title, query)}</h3>
           <span class="category-tag" data-cat="${escapeHtml(r.category)}">${escapeHtml(r.category)}</span>
         </div>
-        <p class="tl-rule-summary">${escapeHtml(r.summary)}</p>
+        <p class="tl-rule-summary">${highlight(r.summary, query)}</p>
         ${detail}
-        ${renderExamples(r)}
+        ${renderExamples(r, query)}
       </article>`;
     })
     .join('');

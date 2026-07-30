@@ -1049,6 +1049,103 @@ body[data-app="townlife"] #app-townlife { display: block; }
 .tl-ex-text { font-size: 13px; color: var(--ink); line-height: 1.7; }
 .tl-ex-why { font-size: 11.5px; color: var(--muted); line-height: 1.65; }
 
+/* 基準カードにぶら下げる「実際のNG事例」 */
+.tl-ng-section {
+  margin-top: 14px;
+  border-top: 1px dashed var(--hairline);
+  padding-top: 12px;
+}
+.tl-ng-section > summary {
+  cursor: pointer;
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ng);
+  letter-spacing: 0.02em;
+}
+.tl-ng-section > summary::-webkit-details-marker { display: none; }
+.tl-ng-section > summary::before {
+  content: "";
+  width: 0; height: 0;
+  border-left: 5px solid var(--faint);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transition: transform 0.15s var(--ease);
+}
+.tl-ng-section[open] > summary::before { transform: rotate(90deg); }
+.tl-ng-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--ng);
+  border-radius: 999px;
+  padding: 0 7px;
+}
+
+.tl-ng-list { list-style: none; margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.tl-ng-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: var(--ng-bg);
+  border: 1px solid var(--ng-line);
+}
+.tl-ng-badge {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
+  margin-top: 1px;
+  color: #fff;
+  background: var(--ng);
+}
+.tl-ng-text { font-size: 13px; color: var(--ink); line-height: 1.7; }
+
+/* NG事例集 */
+.tl-case-list { display: flex; flex-direction: column; gap: 10px; }
+.tl-case {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--ng-line);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  box-shadow: var(--sh-1);
+}
+.tl-case-head { display: flex; align-items: flex-start; gap: 10px; }
+.tl-case-phrase { font-size: 14.5px; font-weight: 700; color: var(--ink); line-height: 1.55; letter-spacing: -0.01em; }
+.tl-case-reason {
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin: 8px 0 0 32px;
+}
+.tl-case-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0 0 32px;
+}
+.tl-case-rule {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border: 1px solid var(--hairline-2);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+.tl-case-src { font-family: var(--mono); font-size: 10.5px; color: var(--faint); }
+
 /* OK/NG quiz */
 .tl-quote {
   position: relative;

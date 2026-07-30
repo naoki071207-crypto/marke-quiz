@@ -64,6 +64,10 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l2.5 2.5L16 8"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>
           <span>OK / NG判定</span>
         </button>
+        <button class="tl-tab" data-tlmode="cases" role="tab">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 4.3 2.5 18a1.6 1.6 0 0 0 1.4 2.4h16.2a1.6 1.6 0 0 0 1.4-2.4L13.7 4.3a1.6 1.6 0 0 0-2.8 0z"/></svg>
+          <span>NG事例集</span>
+        </button>
       </nav>
     </div>
   </header>
@@ -341,6 +345,28 @@
         </div>
       </div>
     </section>
+
+    <!-- ========== NG事例集モード ========== -->
+    <section id="view-tl-cases" class="tl-view">
+      <div class="tl-intro">
+        <h2 class="tl-intro-title">実際のNG事例集</h2>
+        <p class="tl-intro-lead">過去に実際の広告審査で不可となった文言・表現の一覧です。各事例に該当する個別基準の項番と理由を付しています。（全媒体共通シート／家づくりシートより）</p>
+        <p class="tl-intro-meta"><span class="tl-caution">取扱い注意</span></p>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-field">
+          <input type="search" id="tl-case-search" placeholder="NG文言・理由で検索">
+        </div>
+        <div class="select-field">
+          <select id="tl-case-category" aria-label="カテゴリ"></select>
+          <svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <span class="count-badge"><span id="tl-case-count">0</span> 件</span>
+      </div>
+
+      <div id="tl-case-list" class="tl-case-list"></div>
+    </section>
    </div><!-- /#app-townlife -->
   </main>
 
@@ -351,6 +377,7 @@
   <script src="data.js"></script>
   <script src="app.js"></script>
   <script src="townlife-data.js"></script>
+  <script src="townlife-ng.js"></script>
   <script src="townlife.js"></script>
 </body>
 </html>

@@ -55,16 +55,73 @@ $$('.tl-tab').forEach((tab) => {
   tab.addEventListener('click', () => switchTLMode(tab.dataset.tlmode));
 });
 
+// ---------- 実際のNG事例 (TL_NG_CASES) 共通ヘルパー ----------
+const RULE_BY_NO = {};
+TL_RULES.forEach((r) => { RULE_BY_NO[Number(r.no)] = r; });
+
+// 事例が属するカテゴリ（最初の数値項番の基準カテゴリ。無ければ「その他」）
+function caseCategory(c) {
+  for (const r of c.rules) {
+    if (typeof r === 'number' && RULE_BY_NO[r]) return RULE_BY_NO[r].category;
+  }
+  return 'その他';
+}
+
+// 項番配列を「基準1・2項」「その他」等の表示に
+function rulesLabel(rules) {
+  const nums = rules.filter((r) => typeof r === 'number');
+  const parts = [];
+  if (nums.length) parts.push('基準' + nums.join('・') + '項');
+  if (rules.some((r) => r === 'その他') || !nums.length) parts.push('その他');
+  return parts.join(' / ');
+}
+
+function caseSearchText(c) {
+  return `${c.phrase} ${c.category} ${c.reason} ${c.source} ${c.rules.join(' ')}`.toLowerCase();
+}
+
+function ngCasesForRule(no) {
+  return TL_NG_CASES.filter((c) => c.rules.includes(Number(no)));
+}
+
+// 基準カードにぶら下げる「実際のNG事例」ブロック
+function renderRuleNG(r, query) {
+  const cases = ngCasesForRule(r.no);
+  if (!cases.length) return '';
+  const open = query && cases.some((c) => caseSearchText(c).includes(query)) ? ' open' : '';
+  const rows = cases
+    .map(
+      (c) => `
+      <li class="tl-ng-item">
+        <span class="tl-ng-badge">NG</span>
+        <span class="tl-ex-body">
+          <span class="tl-ng-text">${highlight(c.phrase, query)}</span>
+          ${c.reason ? `<span class="tl-ex-why">${highlight(c.reason, query)}</span>` : ''}
+        </span>
+      </li>`
+    )
+    .join('');
+  return `
+    <details class="tl-ng-section"${open}>
+      <summary>実際のNG事例 <span class="tl-ng-count">${cases.length}</span></summary>
+      <ul class="tl-ng-list">${rows}</ul>
+    </details>`;
+}
+
 // ---------- 基準一覧 ----------
 function populateTLSelects() {
   ['#tl-category-filter', '#tl-quiz-category'].forEach((sel) => {
     $(sel).innerHTML = TL_CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join('');
   });
+  $('#tl-case-category').innerHTML = [...TL_CATEGORIES, 'その他']
+    .map((c) => `<option value="${c}">${c}</option>`)
+    .join('');
 }
 
 function ruleSearchText(r) {
   const ex = r.examples.map((e) => e.text + ' ' + e.why).join(' ');
-  return `${r.no} ${r.title} ${r.summary} ${r.detail || ''} ${ex}`.toLowerCase();
+  const ng = ngCasesForRule(r.no).map((c) => c.phrase + ' ' + c.reason).join(' ');
+  return `${r.no} ${r.title} ${r.summary} ${r.detail || ''} ${ex} ${ng}`.toLowerCase();
 }
 
 function renderExamples(r, query) {
@@ -107,6 +164,7 @@ function renderTLList() {
         <p class="tl-rule-summary">${highlight(r.summary, query)}</p>
         ${detail}
         ${renderExamples(r, query)}
+        ${renderRuleNG(r, query)}
       </article>`;
     })
     .join('');
@@ -115,30 +173,100 @@ function renderTLList() {
 $('#tl-search').addEventListener('input', renderTLList);
 $('#tl-category-filter').addEventListener('change', renderTLList);
 
+// ---------- NG事例集 ----------
+function renderTLCases() {
+  const query = $('#tl-case-search').value.trim().toLowerCase();
+  const cat = $('#tl-case-category').value;
+  let items = cat === '全て' ? TL_NG_CASES : TL_NG_CASES.filter((c) => caseCategory(c) === cat);
+  if (query) items = items.filter((c) => caseSearchText(c).includes(query));
+
+  $('#tl-case-count').textContent = items.length;
+  const list = $('#tl-case-list');
+  if (!items.length) {
+    list.innerHTML = `<p class="empty-state">該当するNG事例が見つかりませんでした。</p>`;
+    return;
+  }
+  list.innerHTML = items
+    .map(
+      (c) => `
+    <article class="tl-case">
+      <div class="tl-case-head">
+        <span class="tl-ng-badge">NG</span>
+        <span class="tl-case-phrase">${highlight(c.phrase, query)}</span>
+      </div>
+      ${c.reason ? `<p class="tl-case-reason">${highlight(c.reason, query)}</p>` : ''}
+      <div class="tl-case-meta">
+        <span class="tl-case-rule">${escapeHtml(rulesLabel(c.rules))}</span>
+        <span class="category-tag" data-cat="${escapeHtml(caseCategory(c))}">${escapeHtml(caseCategory(c))}</span>
+        <span class="tl-case-src">${escapeHtml(c.source)}</span>
+      </div>
+    </article>`
+    )
+    .join('');
+}
+
+$('#tl-case-search').addEventListener('input', renderTLCases);
+$('#tl-case-category').addEventListener('change', renderTLCases);
+
 // ---------- OK/NG判定クイズ ----------
-function buildExamplePool(cat) {
+// 出題プールを OK群 / NG群 に分けて返す。
+// NG群 = 基準のNG例 + 実際のNG事例(quiz対象)。統一形式の設問オブジェクトにする。
+function tlQuizItems(cat) {
   const rules = cat === '全て' ? TL_RULES : TL_RULES.filter((r) => r.category === cat);
-  return rules.flatMap((r) => r.examples.map((e) => ({ ...e, rule: r })));
+  const fromRules = rules.flatMap((r) =>
+    r.examples.map((e) => ({
+      text: e.text,
+      ok: e.ok,
+      why: e.why,
+      ruleNos: [Number(r.no)],
+      ruleTitle: r.title,
+      category: r.category,
+      source: '基準例',
+    }))
+  );
+  const fromNG = TL_NG_CASES.filter((c) => c.quiz)
+    .filter((c) => cat === '全て' || caseCategory(c) === cat)
+    .map((c) => {
+      const nums = c.rules.filter((r) => typeof r === 'number');
+      const rule = nums.length ? RULE_BY_NO[nums[0]] : null;
+      return {
+        text: c.phrase,
+        ok: false,
+        why: c.reason,
+        ruleNos: nums,
+        ruleTitle: rule ? rule.title : c.category,
+        category: caseCategory(c),
+        source: c.source,
+      };
+    });
+  return {
+    ok: fromRules.filter((x) => x.ok),
+    ng: [...fromRules.filter((x) => !x.ok), ...fromNG],
+  };
 }
 
 function startTLQuiz() {
   const cat = $('#tl-quiz-category').value;
   const count = parseInt($('#tl-quiz-count').value, 10);
-  const pool = buildExamplePool(cat);
+  const { ok, ng } = tlQuizItems(cat);
+  const total = ok.length + ng.length;
 
-  if (pool.length < 4) {
+  if (total < 4) {
     alert('このカテゴリはOK/NG判定できる例が少なすぎます。別のカテゴリを選んでください。');
     return;
   }
 
-  const target = count === 0 ? pool.length : Math.min(count, pool.length);
-  tlState.quiz = {
-    questions: shuffle(pool).slice(0, target),
-    index: 0,
-    correct: 0,
-    wrong: 0,
-    wrongList: [],
-  };
+  const target = count === 0 ? total : Math.min(count, total);
+  // OK/NGをできるだけ半々に。片方が足りなければもう片方で補う。
+  const wantNg = Math.min(ng.length, Math.round(target / 2));
+  const wantOk = Math.min(ok.length, target - wantNg);
+  const wantNg2 = Math.min(ng.length, target - wantOk);
+  const picked = shuffle([
+    ...shuffle(ok).slice(0, wantOk),
+    ...shuffle(ng).slice(0, wantNg2),
+  ]);
+
+  tlState.quiz = { questions: picked, index: 0, correct: 0, wrong: 0, wrongList: [] };
 
   $('#tl-quiz-setup').classList.add('hidden');
   $('#tl-quiz-result').classList.add('hidden');
@@ -156,8 +284,8 @@ function renderTLQuestion() {
   $('#tl-quiz-wrong').textContent = tlState.quiz.wrong;
   $('#tl-quiz-progress-fill').style.width = `${(index / questions.length) * 100}%`;
 
-  $('#tl-quiz-cat-tag').textContent = q.rule.category;
-  $('#tl-quiz-cat-tag').dataset.cat = q.rule.category;
+  $('#tl-quiz-cat-tag').textContent = q.category;
+  $('#tl-quiz-cat-tag').dataset.cat = q.category;
   $('#tl-quiz-question-text').textContent = q.text;
 
   $$('.judge-btn').forEach((b) => {
@@ -191,8 +319,14 @@ function handleTLAnswer(answer) {
   }
 
   const verdict = q.ok ? 'これは OK な表現' : 'これは NG な表現';
-  $('#tl-feedback-explanation').textContent =
-    `${verdict}です。\n\n【基準${q.rule.no}: ${q.rule.title}】\n${q.why}\n\n${q.rule.summary}`;
+  const rule = q.ruleNos.length ? RULE_BY_NO[q.ruleNos[0]] : null;
+  const head = q.ruleNos.length
+    ? `【基準${q.ruleNos.join('・')}項: ${q.ruleTitle}】`
+    : (q.ruleTitle ? `【${q.ruleTitle}】` : '');
+  const why = q.why ? `\n${q.why}` : '';
+  const summary = rule ? `\n\n${rule.summary}` : '';
+  const src = q.source && q.source !== '基準例' ? `\n\n（出典: 実際のNG事例 / ${q.source}）` : '';
+  $('#tl-feedback-explanation').textContent = `${verdict}です。\n\n${head}${why}${summary}${src}`;
 
   $('#tl-quiz-correct').textContent = tlState.quiz.correct;
   $('#tl-quiz-wrong').textContent = tlState.quiz.wrong;
@@ -252,9 +386,9 @@ function showTLResult() {
           (q) => `
         <div class="wrong-item">
           <strong>${q.ok ? 'OK' : 'NG'}が正解</strong>
-          <span class="wrong-full">基準${q.rule.no} ${escapeHtml(q.rule.title)}</span>
+          <span class="wrong-full">${escapeHtml(q.ruleNos.length ? '基準' + q.ruleNos.join('・') + '項 ' : '')}${escapeHtml(q.ruleTitle || '')}</span>
           ${escapeHtml(q.text)}
-          <span class="tl-wrong-why">${escapeHtml(q.why)}</span>
+          ${q.why ? `<span class="tl-wrong-why">${escapeHtml(q.why)}</span>` : ''}
         </div>`
         )
         .join('')}
@@ -276,4 +410,5 @@ $('#tl-quiz-back-setup').addEventListener('click', () => {
   $('#tl-principle').textContent = TL_PRINCIPLE;
   populateTLSelects();
   renderTLList();
+  renderTLCases();
 })();
